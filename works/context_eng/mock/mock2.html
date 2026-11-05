@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&display=block" rel="stylesheet">
+<style>
+  :root { --bg:#050607; --fg:#f2f2f0; --dim:#8a8d93; --axis:#f4c34a; --acc:#4f8cff; --hit:#ffffff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { width:1080px; height:1920px; overflow:hidden; background:#000; font-family:'Noto Sans JP',sans-serif; color:var(--fg); }
+  .v { position:absolute; inset:0; background:url(bg.jpg) center/cover; }
+  .abs { position:absolute; }
+  .tag { position:absolute; left:40px; top:40px; background:#fffc; color:#000; font:800 34px 'Noto Sans JP'; padding:10px 22px; border-radius:12px; z-index:50; }
+  .sub { position:absolute; left:50%; transform:translateX(-50%); color:#fff; font-weight:800; font-size:46px; white-space:nowrap;
+         text-shadow:0 0 3px #000, 0 3px 10px #000a, 0 0 20px #0008; }
+  .sub b { color:var(--axis); }
+  svg text { font-family:'Noto Sans JP',sans-serif; }
+  .face { position:absolute; width:260px; height:260px; border-radius:50%; overflow:hidden; border:3px solid #ffffff33; }
+  .face > div { position:absolute; left:-32px; top:-79px; width:404px; height:718px; background:url(bg.jpg) 0 0/404px 718px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'D';
+const R = document.getElementById('root');
+
+// 種付き乱数（毎回同じ配置）
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// 座標系：a を横、b を縦
+function axes(W, H, ox, oy, s, range) {
+  const [a0, a1, b0, b1] = range;
+  const X = (a) => ox + a * s, Y = (b) => oy - b * s;
+  let g = `<line x1="${X(a0)}" y1="${oy}" x2="${X(a1)}" y2="${oy}" stroke="var(--axis)" stroke-width="3"/>
+           <polygon points="${X(a1)+16},${oy} ${X(a1)},${oy-8} ${X(a1)},${oy+8}" fill="var(--axis)"/>
+           <line x1="${ox}" y1="${Y(b0)}" x2="${ox}" y2="${Y(b1)}" stroke="var(--axis)" stroke-width="3"/>
+           <polygon points="${ox},${Y(b1)-16} ${ox-8},${Y(b1)} ${ox+8},${Y(b1)}" fill="var(--axis)"/>`;
+  for (let a = Math.ceil(a0); a <= a1; a++) if (a) g += `<line x1="${X(a)}" y1="${oy-7}" x2="${X(a)}" y2="${oy+7}" stroke="var(--axis)" stroke-width="2"/>`;
+  for (let b = Math.ceil(b0); b <= b1; b++) if (b) g += `<line x1="${ox-7}" y1="${Y(b)}" x2="${ox+7}" y2="${Y(b)}" stroke="var(--axis)" stroke-width="2"/>`;
+  g += `<text x="${X(a1)+8}" y="${oy+44}" fill="var(--axis)" font-size="34" font-style="italic" font-weight="500">a</text>
+        <text x="${ox+16}" y="${Y(b1)-4}" fill="var(--axis)" font-size="34" font-style="italic" font-weight="500">b</text>`;
+  return { g, X, Y };
+}
+
+const pages = {
+// D：喋り＋胸の位置に黒いパネル。式が1本の直線、b=−1 で1点に決まる
+D() {
+  const W = 860, H = 470, ox = 330, oy = 200, s = 62;
+  const { g, X, Y } = axes(W, H, ox, oy, s, [-4.6, 8, -4.2, 3.1]);
+  const line = (a) => (2 * a - 5) / 3;
+  // 直線上の「候補」の点
+  let dots = '';
+  for (let a = -4; a <= 7.6; a += 0.8) dots += `<circle cx="${X(a)}" cy="${Y(line(a))}" r="5" fill="var(--dim)"/>`;
+  return `
+  <div class="v"></div>
+  <div class="tag">D　黒パネル＋グラフ（喋りの下）</div>
+  <div class="sub" style="top:972px">でも、<b>b＝−1</b>と分かれば</div>
+  <div class="abs" style="left:110px;top:1060px;width:${W}px;height:${H}px;background:#050607f0;border-radius:36px;border:2px solid #ffffff22"></div>
+  <svg class="abs" style="left:110px;top:1060px" width="${W}" height="${H}">
+    <defs><clipPath id="pan"><rect width="${W}" height="${H}" rx="36"/></clipPath></defs>
+    <g clip-path="url(#pan)">
+    ${g}
+    ${dots}
+    <line x1="${X(-4.4)}" y1="${Y(line(-4.4))}" x2="${X(7.8)}" y2="${Y(line(7.8))}" stroke="var(--acc)" stroke-width="5"/>
+    <line x1="${X(-4.4)}" y1="${Y(-1)}" x2="${X(7.8)}" y2="${Y(-1)}" stroke="#fff" stroke-width="3" stroke-dasharray="14 10"/>
+    <text x="${X(-4.3)}" y="${Y(-1)-14}" fill="#fff" font-size="32" font-weight="700" font-style="italic">b = −1</text>
+    <circle cx="${X(1)}" cy="${Y(-1)}" r="13" fill="#fff"/>
+    <line x1="${X(1)}" y1="${Y(-1)}" x2="${X(1)}" y2="${oy}" stroke="#fff" stroke-width="2" stroke-dasharray="6 6"/>
+    <rect x="${X(1)+22}" y="${Y(-1)+12}" width="150" height="56" rx="12" fill="none" stroke="#fff" stroke-width="2"/>
+    <text x="${X(1)+97}" y="${Y(-1)+52}" fill="#fff" font-size="34" font-weight="800" font-style="italic" text-anchor="middle">a = 1</text>
+    <rect x="${W-330}" y="34" width="290" height="70" rx="14" fill="#050607" stroke="var(--acc)" stroke-width="3"/>
+    <text x="${W-185}" y="82" fill="var(--acc)" font-size="40" font-weight="800" font-style="italic" text-anchor="middle">2a − 3b = 5</text>
+    </g>
+  </svg>`;
+},
+// E：全面の黒。10本の軸が並び、B〜Jが決まって A が1点に決まる
+E() {
+  const keys = 'ABCDEFGHIJ'.split('');
+  const vals = { B: 3, C: -2, D: 4, E: 0, F: 2, G: 1, H: -3, I: 2, J: 4 };
+  const x0 = 120, dx = 93, yTop = 760, yBot = 1340, mid = (yTop + yBot) / 2, s = 55;
+  let g = '';
+  keys.forEach((k, i) => {
+    const x = x0 + i * dx;
+    const known = k !== 'A';
+    g += `<line x1="${x}" y1="${yTop}" x2="${x}" y2="${yBot}" stroke="${known ? 'var(--axis)' : '#fff'}" stroke-width="${known ? 3 : 4}" opacity="${known ? 0.85 : 1}"/>`;
+    for (let t = -5; t <= 5; t++) g += `<line x1="${x-6}" y1="${mid - t*s}" x2="${x+6}" y2="${mid - t*s}" stroke="var(--axis)" stroke-width="2" opacity="0.6"/>`;
+    g += `<text x="${x}" y="${yBot+60}" fill="${known ? 'var(--axis)' : '#fff'}" font-size="40" font-weight="700" font-style="italic" text-anchor="middle">${k}</text>`;
+    if (known) {
+      g += `<circle cx="${x}" cy="${mid - vals[k]*s}" r="11" fill="var(--axis)"/>`;
+      g += `<text x="${x}" y="${yTop-24}" fill="var(--axis)" font-size="30" font-weight="700" text-anchor="middle">${vals[k]}</text>`;
+    }
+  });
+  // A は候補の幅が残っている状態（あと1つで決まる）
+  const xa = x0;
+  g += `<rect x="${xa-14}" y="${mid-2.2*s}" width="28" height="${4.4*s}" rx="14" fill="none" stroke="var(--acc)" stroke-width="4"/>`;
+  g += `<circle cx="${xa}" cy="${mid-1*s}" r="13" fill="var(--acc)"/>`;
+  g += `<text x="${xa}" y="${yTop-24}" fill="var(--acc)" font-size="34" font-weight="800" text-anchor="middle">?</text>`;
+  return `
+  <div class="abs" style="inset:0;background:var(--bg)"></div>
+  <div class="tag">E　全面の黒（10個の未知数）</div>
+  <div class="face" style="left:410px;top:230px"><div></div></div>
+  <div class="abs" style="left:0;width:1080px;top:560px;text-align:center;font-size:50px;font-weight:800">未知数が<span style="color:var(--axis)">10個</span></div>
+  <svg class="abs" style="left:0;top:0" width="1080" height="1920">${g}</svg>
+  <div class="sub" style="top:1480px">BからJまでの<b>9つの値</b>がわかれば</div>`;
+},
+// F：全面の黒。答えの候補（点の雲）が、渡した情報ごとに絞られていく
+F() {
+  const r = rng(7);
+  const cx = 540, cy = 1000;
+  const C = [
+    { x: 405, y: 890, r: 235, label: 'アカウントの情報', lx: 150, ly: 630 },
+    { x: 685, y: 890, r: 235, label: '過去の投稿結果', lx: 690, ly: 630 },
+    { x: 545, y: 1130, r: 235, label: '目標', lx: 500, ly: 1410 },
+  ];
+  const inside = (p, c) => (p.x - c.x) ** 2 + (p.y - c.y) ** 2 < c.r ** 2;
+  let dots = '';
+  for (let i = 0; i < 520; i++) {
+    const p = { x: 70 + r() * 940, y: 560 + r() * 900 };
+    const n = C.filter((c) => inside(p, c)).length;
+    const col = n === 3 ? '#fff' : n ? '#ffffff55' : '#ffffff1f';
+    dots += `<circle cx="${p.x}" cy="${p.y}" r="${n === 3 ? 6 : 4}" fill="${col}"/>`;
+  }
+  let rings = C.map((c) => `<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="none" stroke="var(--axis)" stroke-width="3"/>
+    <text x="${c.lx}" y="${c.ly}" fill="var(--axis)" font-size="36" font-weight="700">${c.label}</text>`).join('');
+  return `
+  <div class="abs" style="inset:0;background:var(--bg)"></div>
+  <div class="tag">F　全面の黒（答えの候補が絞られる）</div>
+  <div class="face" style="left:410px;top:230px"><div></div></div>
+  <svg class="abs" style="left:0;top:0" width="1080" height="1920">
+    ${dots}${rings}
+    <circle cx="545" cy="975" r="22" fill="none" stroke="var(--acc)" stroke-width="5"/>
+    <circle cx="545" cy="975" r="9" fill="var(--acc)"/>
+    <rect x="300" y="1440" width="480" height="76" rx="16" fill="none" stroke="var(--acc)" stroke-width="3"/>
+    <text x="540" y="1492" fill="var(--acc)" font-size="40" font-weight="800" text-anchor="middle">あなたに合った提案</text>
+  </svg>
+  <div class="abs" style="left:0;width:1080px;top:530px;text-align:center;font-size:30px;font-weight:500;color:var(--dim)">点＝AIが返せる答えの候補</div>`;
+},
+};
+R.innerHTML = pages[v]();
+window.ready = document.fonts.ready.then(() => document.fonts.load("900 40px 'Noto Sans JP'")).then(() => true);
+</script>
+</body>
+</html>

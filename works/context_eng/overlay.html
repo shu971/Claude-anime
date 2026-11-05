@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&display=block" rel="stylesheet">
+<style>
+  /* 数式用（LaTeX 風）。ユーザーの指定で、数式だけこの書体を使う */
+  @font-face { font-family: 'KaTeX_Main'; src: url(https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Main-Regular.woff2) format('woff2'); font-weight: 400; font-style: normal; }
+  @font-face { font-family: 'KaTeX_Math'; src: url(https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Math-Italic.woff2) format('woff2'); font-weight: 400; font-style: italic; }
+  html,body { margin:0; background:transparent; overflow:hidden; }
+  canvas { display:block; }
+  body.preview { background:#333 url(mock/bg.jpg) 0 0/1080px 1920px no-repeat; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script type="module" src="scene.js"></script>
+</body>
+</html>
