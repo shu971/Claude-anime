@@ -1,0 +1,27 @@
+{
+  "name": "lumo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "render": "remotion render src/Root.tsx AiSiteFeatures out/ai_site_features.mp4 --codec=h264 --crf=18 --browser-executable=\"C:/Program Files/Google/Chrome/Application/chrome.exe\" --chrome-mode=chrome-for-testing",
+    "studio": "remotion studio src/Root.tsx --browser-executable=\"C:/Program Files/Google/Chrome/Application/chrome.exe\"",
+    "sfx": "cd work && node mix.mjs",
+    "render:aurora": "remotion render src/Root.tsx AuroraDraft out/aurora_draft.mp4 --codec=h264 --crf=18 --browser-executable=\"C:/Program Files/Google/Chrome/Application/chrome.exe\" --chrome-mode=chrome-for-testing"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@remotion/cli": "^4.0.540",
+    "@remotion/google-fonts": "^4.0.540",
+    "@tabler/icons-react": "^3.50.0",
+    "@types/react": "^18.3.31",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.540",
+    "typescript": "^5.9.3"
+  }
+}
