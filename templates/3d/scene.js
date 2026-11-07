@@ -882,7 +882,7 @@ function drawSubs(t) {
 }
 const band = (() => { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); let gr = g.createLinearGradient(0, H - 260, 0, H); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.6)'); g.fillStyle = gr; g.fillRect(0, H - 260, W, 260); gr = g.createLinearGradient(0, 0, 0, 260); gr.addColorStop(0, 'rgba(0,0,0,0.45)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, 260); return c; })();
 
-function flash(t, t0, dur, color = '#fff', peak = 1) { if (t < t0 || t > t0 + dur) return; ctx.save(); ctx.globalAlpha = peak * (1 - (t - t0) / dur); ctx.fillStyle = color; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+function flash(t, t0, dur, color = '#fff', peak = 1) { const a = peak * (1 - (t - t0) / dur); if (t < t0 || !(a > 0.001)) return; ctx.save(); ctx.globalAlpha = Math.min(1, a); ctx.fillStyle = color; ctx.fillRect(0, 0, W, H); ctx.restore(); }
 function dim(t, a, b, k = 0.6) { const v = fin(t, a, 0.3) * fade(t, b - 0.3, b) * k; if (v > 0) { ctx.fillStyle = `rgba(6,8,16,${v})`; ctx.fillRect(0, 0, W, H); } }
 // ---------- 2D kit for this video ----------
 const RED = '#ff5a6a', GREEN = '#4cd98a', BLUE = '#5aa0ff';
