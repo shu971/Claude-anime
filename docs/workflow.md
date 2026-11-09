@@ -107,6 +107,19 @@ index.html         importmap で three をリポジトリ直下の node_modules 
 - タイミングは audio_query の accent_phrases から計算し、読点の区切りの時刻を `audio/timing.json` の chunks に保存。区切りの中は文字位置から推定（`timeline.js` の `at()`）。
 - 公開時は「VOICEVOX:四国めたん」のクレジットが必要。
 
+## 3'. ElevenLabs のナレーション（本人のボイスクローン、2026-11 にテスト済み）
+- 声：「白川ナレーション・デフォルト」（インスタントボイスクローン）。MCP（ホスト型 elevenlabs）で生成する。
+- 設定：モデル Eleven v4、`language_code: ja`、`voice_settings: {stability: 0.7, similarity: 0.85}`、MP3 44.1kHz。
+  - `creative_generate_speech` には設定の引数がないので、`creative_add_flow_node`（tts、上の model_parameters 付き）でノードを作ってから `creative_run_flow_nodes` で生成する。既定で2テイク（約1文字1クレジット×2）。
+- 生成したら**すぐ**ダウンロードする（URLは約2時間で切れる）。`creative_get_flow_run_status` の `content_url` を curl で保存。
+- 台本の下処理と区切り：`python tools/narration.py prep 台本.txt`
+  - 「」『』を外す。箇条書き・Markdownの記号を外して「。」で終わる文にする。タグ（[tired] など）は使わない。
+  - 1回180文字以内。行の切れ目で区切り、かたまりの数を最小にしてから長さをそろえる（「、」で終わる行は次の行とつなぐ）。
+- 読点（、）を入れすぎると読みがゆっくりになる。読点は意味の切れ目にだけ入れると、間が自然になる（ユーザーの感想）。
+- 声が本人にかなり似ているぶん、イントネーションがおかしいと「不気味の谷」のように気になる。制作前に必ず音声を聞いてもらう（CLAUDE.md「1. 進め方」）。
+- つないで無音を詰める：`python tools/narration.py join narration.mp3 chunk_01.mp3 chunk_02.mp3 ...`（0.3秒以上の無音を0.12秒に。先頭と末尾も落とす）
+- タイミング：MCP の生成結果には文字ごとの時刻が付かない。今は faster-whisper で文字起こしして align.py で台本と照合する（「Claude Code」は「クロードコード」と認識されるので、その行の開始は手で補う）。
+
 ## 4. 加工済みナレーションへの差し替え
 - 加工前の音声でタイミングを作り、あとで加工済み音声に差し替えることがある（タイムスタンプは同じ）。
 - 映像だけの動画と効果音だけの音声を残し、`bash combine.sh 加工済み音声.mp3` で合成し直す。
